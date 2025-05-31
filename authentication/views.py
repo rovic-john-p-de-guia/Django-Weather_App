@@ -20,7 +20,7 @@ def login_view(request):
         
         if user is not None:
             login(request, user)
-            return redirect('index')  # Redirect to weather page after login
+            return redirect('weather_index')  # Updated from 'index' to 'weather_index'
         else:
             messages.error(request, 'Invalid username or password.')
     
@@ -43,7 +43,7 @@ def register_view(request):
         
         user = User.objects.create_user(username=username, email=email, password=password)
         login(request, user)
-        return redirect('index')  # Redirect to weather page after registration
+        return redirect('weather_index')  # Updated from 'index' to 'weather_index'
     
     return render(request, 'authentication/login.html')
 

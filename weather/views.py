@@ -5,6 +5,13 @@ from django.http import JsonResponse, HttpResponseForbidden
 from django.core.cache import cache
 import time
 from django.contrib.auth.decorators import login_required
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import get_object_or_404
+from .models import Location, WeatherRecord, UserFavorite
+from .serializers import LocationSerializer, WeatherRecordSerializer, UserFavoriteSerializer
 
 @login_required
 def index(request):
@@ -106,3 +113,64 @@ def get_weather(request):
             return JsonResponse({'error': str(e)}, status=500)
 
     return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+class LocationViewSet(viewsets.ModelViewSet):
+    queryset = Location.objects.all()
+    serializer_class = LocationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save()
+
+    def get_queryset(self):
+        queryset = Location.objects.all()
+        name = self.request.query_params.get('name', None)
+        if name:
+            queryset = queryset.filter(name__icontains=name)
+        return queryset
+
+class WeatherRecordViewSet(viewsets.ModelViewSet):
+    queryset = WeatherRecord.objects.all()
+    serializer_class = WeatherRecordSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save()
+
+    def get_queryset(self):
+        queryset = WeatherRecord.objects.all()
+        location_id = self.request.query_params.get('location_id', None)
+        if location_id:
+            queryset = queryset.filter(location_id=location_id)
+        return queryset
+
+class UserFavoriteViewSet(viewsets.ModelViewSet):
+    serializer_class = UserFavoriteSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return UserFavorite.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    @action(detail=False, methods=['get'])
+    def my_favorites(self, request):
+        favorites = self.get_queryset()
+        serializer = self.get_serializer(favorites, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['post'])
+    def toggle_favorite(self, request, pk=None):
+        location = get_object_or_404(Location, pk=pk)
+        favorite, created = UserFavorite.objects.get_or_create(
+            user=request.user,
+            location=location
+        )
+        
+        if not created:
+            favorite.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        
+        serializer = self.get_serializer(favorite)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
