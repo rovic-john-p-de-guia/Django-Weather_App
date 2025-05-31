@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Toast Container -->
+<div class="toast-container position-fixed top-0 end-0 p-3">
+    {% if messages %}
+        {% for message in messages %}
+        <div class="toast align-items-center text-white {% if message.tags == 'success' %}bg-success{% else %}bg-danger{% endif %} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    {{ message }}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <h1 class="display-5 fw-bold text-primary mb-2">Weather App</h1>
+                        <p class="lead text-secondary">Search for any location to get current weather</p>
+                    </div>
+                    <form id="weather-form" class="mb-4" method="post" action="#">
+                        {% csrf_token %}
+                        <div class="input-group input-group-lg">
+                            <input type="text" id="location" name="location" placeholder="Enter location..." class="form-control rounded-start" required>
+                            <button type="submit" class="btn btn-primary rounded-end">Search</button>
+                        </div>
+                    </form>
+
+                    <div id="weather-result" class="d-none mt-4">
+                        <div class="text-center">
+                            <h2 id="location-name" class="h3 fw-bold text-dark mb-3"></h2>
+                            <img id="weather-icon" src="" alt="Weather icon" class="mb-3" style="width: 80px; height: 80px;">
+                            <div class="display-4 fw-bold text-primary mb-2">
+                                <span id="temperature"></span> <span id="temperature-unit"></span>
+                            </div>
+                            <p id="summary" class="text-secondary mb-1"></p>
+                            <p id="description" class="text-muted mb-3"></p>
+                        </div>
+                        <div class="row g-3 mt-3">
+                            <div class="col-6 col-md-4 col-lg-3">
+                                <div class="bg-light rounded-3 p-3 text-center">
+                                    <div class="text-muted small">Feels Like</div>
+                                    <div id="feels-like" class="fw-semibold"></div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-4 col-lg-3">
+                                <div class="bg-light rounded-3 p-3 text-center">
+                                    <div class="text-muted small">Min/Max</div>
+                                    <div><span id="temp-min"></span> / <span id="temp-max"></span></div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-4 col-lg-3">
+                                <div class="bg-light rounded-3 p-3 text-center">
+                                    <div class="text-muted small">Humidity</div>
+                                    <div id="humidity" class="fw-semibold"></div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-4 col-lg-3">
+                                <div class="bg-light rounded-3 p-3 text-center">
+                                    <div class="text-muted small">Pressure</div>
+                                    <div id="pressure" class="fw-semibold"></div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-4 col-lg-3">
+                                <div class="bg-light rounded-3 p-3 text-center">
+                                    <div class="text-muted small">Wind</div>
+                                    <div id="wind" class="fw-semibold"></div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-4 col-lg-3">
+                                <div class="bg-light rounded-3 p-3 text-center">
+                                    <div class="text-muted small">Cloudiness</div>
+                                    <div id="cloudiness" class="fw-semibold"></div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-4 col-lg-3">
+                                <div class="bg-light rounded-3 p-3 text-center">
+                                    <div class="text-muted small">Rain (3h)</div>
+                                    <div id="rain" class="fw-semibold"></div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-4 col-lg-3">
+                                <div class="bg-light rounded-3 p-3 text-center">
+                                    <div class="text-muted small">Snow (3h)</div>
+                                    <div id="snow" class="fw-semibold"></div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-4 col-lg-3">
+                                <div class="bg-light rounded-3 p-3 text-center">
+                                    <div class="text-muted small">Visibility</div>
+                                    <div id="visibility" class="fw-semibold"></div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-4 col-lg-3">
+                                <div class="bg-light rounded-3 p-3 text-center">
+                                    <div class="text-muted small">Precipitation Probability</div>
+                                    <div id="precipitation-prob" class="fw-semibold"></div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-4 col-lg-3">
+                                <div class="bg-light rounded-3 p-3 text-center">
+                                    <div class="text-muted small">Part of Day</div>
+                                    <div id="part-of-day" class="fw-semibold"></div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-4 col-lg-3">
+                                <div class="bg-light rounded-3 p-3 text-center">
+                                    <div class="text-muted small">Date/Time</div>
+                                    <div id="datetime" class="fw-semibold"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="error-message" class="d-none text-center text-danger mt-4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Show all toasts
+    var toastElList = [].slice.call(document.querySelectorAll('.toast'));
+    var toastList = toastElList.map(function(toastEl) {
+        return new bootstrap.Toast(toastEl, {
+            autohide: true,
+            delay: 3000
+        });
+    });
+    toastList.forEach(toast => toast.show());
+});
+</script>
+{% endblock %} 
