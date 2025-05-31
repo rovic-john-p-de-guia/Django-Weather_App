@@ -51,7 +51,7 @@
                         
                         <!-- Register Form -->
                         <div class="tab-pane fade" id="register" role="tabpanel">
-                            <form id="registerForm" method="POST" action="{% url 'register' %}">
+                            <form id="registerForm" method="POST" action="{% url 'register' %}" enctype="multipart/form-data">
                                 {% csrf_token %}
                                 <div class="mb-3">
                                     <label for="reg-username" class="form-label">Username</label>
@@ -68,6 +68,10 @@
                                 <div class="mb-3">
                                     <label for="reg-password2" class="form-label">Confirm Password</label>
                                     <input type="password" class="form-control" id="reg-password2" name="password2" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="reg-photo" class="form-label">Profile Photo (JPEG, PNG, WebP, max 2MB)</label>
+                                    <input type="file" class="form-control" id="reg-photo" name="photo" accept="image/jpeg,image/png,image/webp">
                                 </div>
                                 <button type="submit" class="btn btn-success w-100">Register</button>
                             </form>

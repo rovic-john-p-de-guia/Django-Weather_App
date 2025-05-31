@@ -86,6 +86,11 @@
                 <!-- Removed Home link -->
                 {% if user.is_authenticated %}
                 <div class="d-flex align-items-center ms-auto">
+                    {% if user.profile.photo %}
+                        <img src="{{ user.profile.photo.url }}" alt="Profile Photo" class="rounded-circle me-2" style="width:36px; height:36px; object-fit:cover; border:2px solid #fff;">
+                    {% else %}
+                        <i class="fas fa-user-circle fa-2x text-white me-2"></i>
+                    {% endif %}
                     <span class="welcome-text">
                         <i class="fas fa-user me-1"></i>Welcome, {{ user.username }}
                     </span>

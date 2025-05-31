@@ -41,22 +41,45 @@ Visit http://127.0.0.1:8000 to use the application.
 
 ## Authentication API Endpoints
 
-### 1. Register User
+### 1. Register User (with Photo Upload)
 - **Method**: POST
-- **URL**: `/api/auth/register/`
-- **Headers**: 
-  ```
-  Content-Type: application/json
-  ```
-- **Request Body**:
-  ```json
-  {
-    "username": "testuser",
-    "email": "test@example.com",
-    "password": "securepassword123",
-    "password2": "securepassword123"
-  }
-  ```
+- **URL**: `/auth/api/register/`
+- **Headers**:
+  - `Content-Type: multipart/form-data`
+- **Request Body** (form fields):
+  - `username`: string
+  - `email`: string
+  - `password`: string
+  - `password2`: string
+  - `photo`: image file (JPEG, PNG, or WebP, max 2MB, optional)
+- **Sample cURL**:
+```bash
+curl -X POST http://127.0.0.1:8000/auth/api/register/ \
+  -F "username=testuser" \
+  -F "email=test@example.com" \
+  -F "password=securepassword123" \
+  -F "password2=securepassword123" \
+  -F "photo=@/path/to/photo.jpg"
+```
+- **Sample Success Response**:
+```json
+{
+  "username": "testuser",
+  "email": "test@example.com"
+}
+```
+- **Sample Error Response (file too large)**:
+```json
+{
+  "photo": ["Image size should not exceed 2MB."]
+}
+```
+- **Sample Error Response (invalid type)**:
+```json
+{
+  "photo": ["Only JPEG, PNG, and WebP images are allowed."]
+}
+```
 
 ### 2. Login
 - **Method**: POST

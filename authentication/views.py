@@ -9,6 +9,8 @@ from rest_framework.views import APIView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.views import View
+from .rate_limit import rate_limit
+from rest_framework.parsers import MultiPartParser, FormParser
 
 # Create your views here.
 
@@ -32,7 +34,8 @@ def register_view(request):
         email = request.POST.get('email')
         password = request.POST.get('password')
         password2 = request.POST.get('password2')
-        
+        photo = request.FILES.get('photo')  # Get the uploaded photo
+
         if password != password2:
             messages.error(request, 'Passwords do not match.')
             return redirect('login')
@@ -42,6 +45,9 @@ def register_view(request):
             return redirect('login')
         
         user = User.objects.create_user(username=username, email=email, password=password)
+        # Create the profile with the photo
+        from .models import UserProfile
+        UserProfile.objects.create(user=user, photo=photo)
         login(request, user)
         return redirect('index')  # Redirect to weather page after registration
     
@@ -51,6 +57,11 @@ def register_view(request):
 class RegisterView(generics.CreateAPIView):
     permission_classes = (AllowAny,)
     serializer_class = RegisterSerializer
+    parser_classes = (MultiPartParser, FormParser)
+    
+    @rate_limit
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
 
 class ProtectedView(APIView):
     permission_classes = (IsAuthenticated,)
