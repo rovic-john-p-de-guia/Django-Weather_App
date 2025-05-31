@@ -98,7 +98,7 @@ Visit http://127.0.0.1:8000 to use the application.
 ## Rate Limiting
 
 All authentication endpoints are protected by a custom rate limiting mechanism:
-- **Limit:** 5 requests per minute per user (or per IP if not authenticated)
+- **Limit:** 10 requests per minute per user (or per IP if not authenticated)
 - **Exceeded Limit:** Returns HTTP 429 Too Many Requests
 
 **Sample 429 Response:**
