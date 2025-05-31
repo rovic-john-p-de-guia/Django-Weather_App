@@ -94,3 +94,28 @@ Visit http://127.0.0.1:8000 to use the application.
   ```
   Authorization: Bearer your_access_token
   ``` 
+
+## Rate Limiting
+
+All authentication endpoints are protected by a custom rate limiting mechanism:
+- **Limit:** 5 requests per minute per user (or per IP if not authenticated)
+- **Exceeded Limit:** Returns HTTP 429 Too Many Requests
+
+**Sample 429 Response:**
+```json
+{
+  "error": "Rate limit exceeded. Try again later."
+}
+```
+
+**Rate-limited Endpoints:**
+- `POST /auth/api/register/`
+- `POST /auth/api/login/`
+- `GET /auth/api/protected/`
+
+**Headers:**
+- For authenticated requests: `Authorization: Bearer <your_access_token>`
+- For unauthenticated requests: No special header required
+
+**Example:**
+If you make more than 5 requests to any of the above endpoints within 60 seconds, you will receive a 429 error as shown above. 

@@ -9,9 +9,11 @@ from rest_framework.views import APIView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.views import View
+from .rate_limit import rate_limit
 
 # Create your views here.
 
+@rate_limit
 def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -26,6 +28,7 @@ def login_view(request):
     
     return render(request, 'authentication/login.html')
 
+@rate_limit
 def register_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -51,10 +54,15 @@ def register_view(request):
 class RegisterView(generics.CreateAPIView):
     permission_classes = (AllowAny,)
     serializer_class = RegisterSerializer
+    
+    @rate_limit
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
 
 class ProtectedView(APIView):
     permission_classes = (IsAuthenticated,)
     
+    @rate_limit
     def get(self, request):
         return Response({
             "message": "This is a protected route",
